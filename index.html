@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1220">
+<title>FootRise</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(160deg, #07111f, #10233d);
+  color: white;
+  min-height: 100vh;
+}
+
+button {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.app {
+  max-width: 500px;
+  margin: auto;
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+header {
+  padding: 20px;
+  text-align: center;
+  background: rgba(0,0,0,.25);
+}
+
+.logo {
+  font-size: 34px;
+  font-weight: 900;
+  color: #37e68c;
+}
+
+.subtitle {
+  color: #b8c7d9;
+  margin-top: 5px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 8px;
+  padding: 12px;
+}
+
+.stat {
+  background: rgba(255,255,255,.08);
+  border-radius: 15px;
+  padding: 12px 5px;
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 20px;
+  color: #37e68c;
+}
+
+.screen {
+  display: none;
+  padding: 15px;
+}
+
+.screen.active {
+  display: block;
+}
+
+.card {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.primary {
+  width: 100%;
+  background: #37e68c;
+  color: #06130d;
+  margin-top: 10px;
+}
+
+.secondary {
+  width: 100%;
+  background: #263c59;
+  color: white;
+  margin-top: 10px;
+}
+
+.danger {
+  background: #e64d5c;
+  color: white;
+}
+
+.difficulty {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 9px;
+}
+
+.difficulty button {
+  background: #20354f;
+  color: white;
+}
+
+.difficulty button.selected {
+  background: #37e68c;
+  color: #06130d;
+}
+
+.player {
+  text-align: center;
+  background: linear-gradient(145deg,#1b4164,#0e243c);
+  border-radius: 22px;
+  padding: 25px;
+}
+
+.player-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin: auto;
+  background: #37e68c;
+  color: #07111f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 45px;
+}
+
+.rating {
+  font-size: 38px;
+  font-weight: bold;
+  color: #37e68c;
+}
+
+.power-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 12px;
+}
+
+.power {
+  background: #172b44;
+  border-radius: 18px;
+  padding: 15px;
+}
+
+.power-icon {
+  font-size: 32px;
+}
+
+.power-name {
+  font-weight: bold;
+  margin: 7px 0;
+}
+
+.bar {
+  height: 9px;
+  background: #07111f;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: #37e68c;
+}
+
+.reward {
+  text-align: center;
+  padding: 25px;
+  background: linear-gradient(145deg,#3a2b10,#181d2b);
+  border-radius: 20px;
+}
+
+.reward-icon {
+  font-size: 60px;
+}
+
+.reward-value {
+  color: #ffd45a;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 500px;
+  margin: auto;
+  background: #081321;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  padding: 8px;
+  border-top: 1px solid #263c59;
+}
+
+.nav button {
+  background: transparent;
+  color: #aebed0;
+  padding: 10px 4px;
+  font-size: 13px;
+}
+
+.nav button.active {
+  color: #37e68c;
+}
+
+.match-score {
+  font-size: 48px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px;
+}
+
+.center {
+  text-align: center;
+}
+
+.message {
+  text-align: center;
+  color: #37e68c;
+  min-height: 25px;
+  margin-top: 12px;
+}
+
+.level {
+  color: #ffd45a;
+  font-weight: bold;
+}
+
+.small {
+  color: #9eb0c5;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <div class="logo">⚽ FOOTRISE</div>
+  <div class="subtitle">Deviens une légende du football</div>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <strong id="coins">500</strong>
+    🪙 Pièces
+  </div>
+  <div class="stat">
+    <strong id="level">1</strong>
+    Niveau
+  </div>
+  <div class="stat">
+    <strong id="rating">60</strong>
+    ⭐ Note
+  </div>
+</div>
+
+<!-- ACCUEIL -->
+<section id="home" class="screen active">
+
+  <div class="card player">
+    <div class="player-avatar">⚽</div>
+    <h2>Ton joueur</h2>
+    <div class="rating" id="homeRating">60</div>
+    <div class="level">Niveau 1</div>
+    <p class="small">Continue les entraînements pour devenir plus fort.</p>
+  </div>
+
+  <div class="card">
+    <h2>🏆 Prochain match</h2>
+    <p>Ton équipe est prête à jouer.</p>
+    <button class="primary" onclick="startMatch()">⚽ JOUER LE MATCH</button>
+  </div>
+
+  <div class="card">
+    <h2>🏋️ Entraînement</h2>
+    <p>Améliore les pouvoirs de ton joueur.</p>
+    <button class="secondary" onclick="showScreen('training')">
+      COMMENCER L'ENTRAÎNEMENT
+    </button>
+  </div>
+
+</section>
+
+<!-- POUVOIRS -->
+<section id="powers" class="screen">
+
+  <div class="card">
+    <h2>⚡ Pouvoirs du joueur</h2>
+    <p class="small">Améliore tes statistiques avec les entraînements.</p>
+  </div>
+
+  <div class="power-grid">
+
+    <div class="power">
+      <div class="power-icon">⚡</div>
+      <div class="power-name">Vitesse</div>
+      <div class="bar"><span id="speedBar" style="width:60%"></span></div>
+      <p><span id="speed">60</span>/100</p>
+      <button class="secondary" onclick="upgrade('speed')">+ Améliorer</button>
+    </div>
+
+    <div class="power">
+      <div class="power-icon">🎯</div>
+      <div class="power-name">Tir</div>
+      <div class="bar"><span id="shootBar" style="width:60%"></span></div>
+      <p><span id="shoot">60</span>/100</p>
+      <button class="secondary" onclick="upgrade('shoot')">+ Améliorer</button>
+    </div>
+
+    <div class="power">
+      <div class="power-icon">🎩</div>
+      <div class="power-name">Dribble</div>
+      <div class="bar"><span id="dribbleBar" style="width:60%"></span></div>
+      <p><span id="dribble">60</span>/100</p>
+      <button class="secondary" onclick="upgrade('dribble')">+ Améliorer</button>
+    </div>
+
+    <div class="power">
+      <div class="power-icon">🛡️</div>
+      <div class="power-name">Défense</div>
+      <div class="bar"><span id="defenseBar" style="width:60%"></span></div>
+      <p><span id="defense">60</span>/100</p>
+      <button class="secondary" onclick="upgrade('defense')">+ Améliorer</button>
+    </div>
+
+  </div>
+
+  <div id="powerMessage" class="message"></div>
+
+</section>
+
+<!-- ENTRAINEMENT -->
+<section id="training" class="screen">
+
+  <div class="card">
+    <h2>🏋️ Entraînement</h2>
+    <p>Choisis ton niveau de difficulté.</p>
+
+    <div class="difficulty">
+      <button onclick="setDifficulty('Débutant',1)">Débutant</button>
+      <button onclick="setDifficulty('Amateur',2)">Amateur</button>
+      <button onclick="setDifficulty('Normal',3)">Normal</button>
+      <button onclick="setDifficulty('Professionnel',4)">Professionnel</button>
+      <button onclick="setDifficulty('Superstar',5)">Superstar</button>
+    </div>
+
+    <p id="difficultyText" class="center">
+      Difficulté : Débutant
+    </p>
+
+    <button class="primary" onclick="train()">
+      🏋️ S'ENTRAÎNER
+    </button>
+
+    <div id="trainingMessage" class="message"></div>
+  </div>
+
+</section>
+
+<!-- MATCH -->
+<section id="match" class="screen">
+
+  <div class="card center">
+    <h2>🏟️ MATCH</h2>
+    <p id="matchStatus">Le match va commencer...</p>
+
+    <div class="match-score">
+      <span id="myScore">0</span>
+      -
+      <span id="enemyScore">0</span>
+    </div>
+
+    <button class="primary" id="playAction" onclick="playMatchAction()">
+      ⚽ JOUER
+    </button>
+
+    <div id="matchMessage" class="message"></div>
+  </div>
+
+</section>
+
+<!-- RECOMPENSE -->
+<section id="reward" class="screen">
+
+  <div class="reward">
+    <div class="reward-icon" id="rewardIcon">🏆</div>
+    <h2 id="rewardTitle">Récompense !</h2>
+    <p id="rewardText"></p>
+    <div class="reward-value" id="rewardValue"></div>
+
+    <button class="primary" onclick="showScreen('home')">
+      CONTINUER
+    </button>
+  </div>
+
+</section>
+
+<!-- MENU -->
+<nav class="nav">
+  <button onclick="showScreen('home')" id="navHome" class="active">
+    🏠<br>Accueil
+  </button>
+
+  <button onclick="showScreen('training')" id="navTraining">
+    🏋️<br>Entraînement
+  </button>
+
+  <button onclick="showScreen('powers')" id="navPowers">
+    ⚡<br>Pouvoirs
+  </button>
+
+  <button onclick="startMatch()" id="navMatch">
+    ⚽<br>Match
+  </button>
+</nav>
+
+</div>
+
+<script>
+
+/* =========================
+   DONNÉES DU JEU
+========================= */
+
+let game = {
+  coins: 500,
+  level: 1,
+  xp: 0,
+
+  speed: 60,
+  shoot: 60,
+  dribble: 60,
+  defense: 60,
+
+  difficulty: "Débutant",
+  difficultyValue: 1,
+
+  myScore: 0,
+  enemyScore: 0,
+  matchActions: 0
+};
+
+
+/* =========================
+   SAUVEGARDE
+========================= */
+
+function saveGame() {
+  localStorage.setItem("footriseSave", JSON.stringify(game));
+}
+
+function loadGame() {
+
+  const saved = localStorage.getItem("footriseSave");
+
+  if (saved) {
+    game = JSON.parse(saved);
+  }
+
+  updateUI();
+}
+
+
+/* =========================
+   AFFICHAGE
+========================= */
+
+function updateUI() {
+
+  document.getElementById("coins").textContent = game.coins;
+  document.getElementById("level").textContent = game.level;
+
+  const rating = getRating();
+
+  document.getElementById("rating").textContent = rating;
+  document.getElementById("homeRating").textContent = rating;
+
+  document.getElementById("speed").textContent = game.speed;
+  document.getElementById("shoot").textContent = game.shoot;
+  document.getElementById("dribble").textContent = game.dribble;
+  document.getElementById("defense").textContent = game.defense;
+
+  document.getElementById("speedBar").style.width =
+    game.speed + "%";
+
+  document.getElementById("shootBar").style.width =
+    game.shoot + "%";
+
+  document.getElementById("dribbleBar").style.width =
+    game.dribble + "%";
+
+  document.getElementById("defenseBar").style.width =
+    game.defense + "%";
+}
+
+
+function getRating() {
+
+  return Math.round(
+    (game.speed +
+     game.shoot +
+     game.dribble +
+     game.defense) / 4
+  );
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function showScreen(name) {
+
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
+
+  document.getElementById(name).classList.add("active");
+
+  document.querySelectorAll(".nav button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  if (name === "home") {
+    document.getElementById("navHome").classList.add("active");
+  }
+
+  if (name === "training") {
+    document.getElementById("navTraining").classList.add("active");
+  }
+
+  if (name === "powers") {
+    document.getElementById("navPowers").classList.add("active");
+  }
+
+  if (name === "match") {
+    document.getElementById("navMatch").classList.add("active");
+  }
+}
+
+
+/* =========================
+   DIFFICULTÉ
+========================= */
+
+function setDifficulty(name, value) {
+
+  game.difficulty = name;
+  game.difficultyValue = value;
+
+  document.getElementById("difficultyText").textContent =
+    "Difficulté : " + name;
+
+  document.querySelectorAll(".difficulty button")
+    .forEach(button => button.classList.remove("selected"));
+
+  event.target.classList.add("selected");
+
+  saveGame();
+}
+
+
+/* =========================
+   ENTRAINEMENT
+========================= */
+
+function train() {
+
+  const value = game.difficultyValue;
+
+  const powers = [
+    "speed",
+    "shoot",
+    "dribble",
+    "defense"
+  ];
+
+  const selected =
+    powers[Math.floor(Math.random() * powers.length)];
+
+  const gain = value + Math.floor(Math.random() * 3);
+
+  game[selected] = Math.min(
+    100,
+    game[selected] + gain
+  );
+
+  game.xp += value * 10;
+
+  if (game.xp >= 100) {
+
+    game.xp -= 100;
+    game.level++;
+
+    document.getElementById("trainingMessage").textContent =
+      "🎉 Niveau supérieur ! Tu es maintenant niveau " +
+      game.level + " !";
+
+  } else {
+
+    document.getElementById("trainingMessage").textContent =
+      "🔥 Excellent ! +" + gain +
+      " en " + translatePower(selected) + ".";
+  }
+
+  saveGame();
+  updateUI();
+}
+
+
+function translatePower(power) {
+
+  const names = {
+    speed: "vitesse",
+    shoot: "tir",
+    dribble: "dribble",
+    defense: "défense"
+  };
+
+  return names[power];
+}
+
+
+/* =========================
+   AMÉLIORATION DES POUVOIRS
+========================= */
+
+function upgrade(power) {
+
+  const cost = 50;
+
+  if (game.coins < cost) {
+
+    document.getElementById("powerMessage").textContent =
+      "❌ Pas assez de pièces.";
+
+    return;
+  }
+
+  if (game[power] >= 100) {
+
+    document.getElementById("powerMessage").textContent =
+      "⭐ Cette capacité est déjà au maximum.";
+
+    return;
+  }
+
+  game.coins -= cost;
+  game[power] = Math.min(100, game[power] + 2);
+
+  document.getElementById("powerMessage").textContent =
+    "⚡ Pouvoir amélioré ! -50 🪙";
+
+  saveGame();
+  updateUI();
+}
+
+
+/* =========================
+   MATCH
+========================= */
+
+function startMatch() {
+
+  game.myScore = 0;
+  game.enemyScore = 0;
+  game.matchActions = 0;
+
+  document.getElementById("myScore").textContent = "0";
+  document.getElementById("enemyScore").textContent = "0";
+
+  document.getElementById("matchStatus").textContent =
+    "Le match commence !";
+
+  document.getElementById("matchMessage").textContent =
+    "";
+
+  document.getElementById("playAction").disabled = false;
+
+  showScreen("match");
+}
+
+
+function playMatchAction() {
+
+  game.matchActions++;
+
+  const strength = getRating();
+
+  const chance = Math.random() * 100;
+
+  if (chance < strength * 0.45) {
+
+    game.myScore++;
+
+    document.getElementById("matchMessage").textContent =
+      "⚽ BUT ! Magnifique action !";
+
+  } else {
+
+    document.getElementById("matchMessage").textContent =
+      "😮 L'occasion est manquée...";
+  }
+
+  if (Math.random() < 0.35) {
+    game.enemyScore++;
+  }
+
+  document.getElementById("myScore").textContent =
+    game.myScore;
+
+  document.getElementById("enemyScore").textContent =
+    game.enemyScore;
+
+  if (game.matchActions >= 5) {
+    finishMatch();
+  }
+
+  saveGame();
+}
+
+
+function finishMatch() {
+
+  document.getElementById("playAction").disabled = true;
+
+  let reward;
+
+  if (game.myScore > game.enemyScore) {
+
+    reward = Math.floor(
+      100 + Math.random() * 200
+    );
+
+    game.coins += reward;
+
+    document.getElementById("rewardIcon").textContent = "🏆";
+    document.getElementById("rewardTitle").textContent =
+      "VICTOIRE !";
+
+    document.getElementById("rewardText").textContent =
+      "Tu as remporté le match !";
+
+    document.getElementById("rewardValue").textContent =
+      "+" + reward + " 🪙";
+
+  } else if (game.myScore === game.enemyScore) {
+
+    reward = 75;
+
+    game.coins += reward;
+
+    document.getElementById("rewardIcon").textContent = "🤝";
+    document.getElementById("rewardTitle").textContent =
+      "MATCH NUL";
+
+    document.getElementById("rewardText").textContent =
+      "Un match très disputé !";
+
+    document.getElementById("rewardValue").textContent =
+      "+" + reward + " 🪙";
+
+  } else {
+
+    reward = 30;
+
+    game.coins += reward;
+
+    document.getElementById("rewardIcon").textContent = "😢";
+    document.getElementById("rewardTitle").textContent =
+      "DÉFAITE";
+
+    document.getElementById("rewardText").textContent =
+      "Tu as perdu, mais tu reçois quand même une récompense.";
+
+    document.getElementById("rewardValue").textContent =
+      "+" + reward + " 🪙";
+  }
+
+  saveGame();
+  updateUI();
+
+  setTimeout(() => {
+    showScreen("reward");
+  }, 700);
+}
+
+
+/* =========================
+   LANCEMENT
+========================= */
+
+loadGame();
+
+</script>
+
+</body>
+  </html>
